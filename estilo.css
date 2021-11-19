@@ -1,0 +1,20 @@
+#menu {
+    background-color: burlywood;
+    position: fixed;
+    right: 20px;
+    top:0;
+    padding-right: 50px;
+}
+#menu ul {
+    list-style-type: none;
+}
+#menu a {
+    color:cornsilk;
+    text-decoration: none;
+}
+#menu a:hover {
+    background-color: crimson;
+    color: floralwhite;
+    opacity: 0.5;
+}
+img {width: 100%;}

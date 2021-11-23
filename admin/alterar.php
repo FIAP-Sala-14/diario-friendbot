@@ -1,89 +1,79 @@
-<?php
-//include "valida_cookies.inc";
-?>
 <!DOCTYPE html>
 <html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<title>ALTERAR PRODUTO</title>
-<link rel="stylesheet" href="../estilo.css"/>
-</head>
-<body>
-<?php include 'menu.php'; ?>  
-<h1>ALTERAR PRODUTO</h1>
-<?php
-//se o botão não for clicado, mostrar o form
-if(!isset($_REQUEST['botao'])) { 
-    echo "VOCÊ NÃO PODE ACESSAR A PÁGINA DIRETAMENTE";
+  <head>
+    <meta charset="UTF-8">
+    <title>Alterar Post</title>
+    <link rel="stylesheet" href="../estilo.css"/>
+  </head>
+  <body>
+    <?php include '../conecta_mysql.inc'; ?>  
+    <h1>Alterar Post</h1>
+    <?php
+      //se o botão não for clicado, mostrar o form
+      if(!isset($_GET['post'])) { 
+        echo "Nenhum post selecionado";
+      }
+      else {
+        
+        $strSQL = array();
+        $strSQL[] = "SELECT id, title, tags, content, photo, status, date_created, author, category";
+        $strSQL[] = "FROM posts";
+        $strSQL[] = "WHERE id = " . $_GET['post'];
+        $strSQL = implode(' ', $strSQL);
+        
+        $resultado =  mysqli_query($conexao, $strSQL);
 
-}
-else { 
-    
-    if(!isset($_REQUEST['valida'])) {
-            $id_produto = $_REQUEST['id_produto'];
-            //PASSO 1
-            $conexao = mysqli_connect("localhost","root", "", "informatica") or die ("A conexão não foi executada com sucesso");
-            //PASSO 2 - MONTAR A CONSULTA
-            echo $consulta = "SELECT id_produto,nome_produto,descricao_produto,imagem_produto,categoria,preco FROM produto WHERE id_produto='$id_produto'";
-            //PASSO 3- EXECUTAR A CONSULTA
-            $resultado =  mysqli_query($conexao,$consulta);
-            list($id_produto,$nome_produto,$descricao_produto,$imagem_produto,$categoria,$preco) = mysqli_fetch_array($resultado);
+        list($id, $title, $tags, $content, $photo, $status, $date_created, $author, $category) = mysqli_fetch_array($resultado);
+      }
+    ?>
 
+    <form name="change" id="change" method="POST" action="alterar_feedback.php">
 
+      <label for="title">Título:</label>
+      <input type="text" name="title" value="<?php echo $title; ?>" required />
 
+      <br/>
+
+      <label for="tags">Tags:</label>
+      <input type="text" name="tags" value="<?php echo $tags; ?>" required />
+
+      <br/>
+
+      <label for="content">Conteúdo:</label>
+      <textarea name="content" rows="30" cols="80">
+        <?php echo $content; ?>
+      </textarea>
+
+      <br/>
+
+      <label for="imagem_produto">Imagem:</label>
+      <input type="text" name="photo" value="<?php echo $photo; ?>" required width="200" />
+
+      <br/>
+
+      <label for="category">Categoria:</label>
+      <select name="category">
+        <?php
+          $strSQL = array();
+          $strSQL[] =  "SELECT id, name";
+          $strSQL[] = "FROM post_categories";
+          $strSQL[] = "ORDER BY name";
+          $strSQL[] = "LIMIT 10";
+          $strSQL = implode(' ', $strSQL);
+          
+          $categories =  mysqli_query($conexao, $strSQL);
+
+          while (list($cat_id, $cat_name) = mysqli_fetch_array($categories)) {
+            if ($cat_name == $category) echo "<option value='$cat_id' selected>$cat_name</option>";
+            else echo "<option value='$cat_id'>$cat_name</option>";
+          }
         ?>
+      </select>
 
-            <form name="form1" id="form1" method="POST" action="alterar.php">
-        <label for="nome">Nome do Produto:</label>
-        <input type="text" name="nome" value="<?php echo $nome_produto; ?>" required />
-        <br/>
-        <label for="descricao">Descrição do Produto:</label>
-        <textarea name="descricao" rows="4" cols="20">
-            <?php echo $descricao_produto; ?>
-        </textarea>
-        <br/>
-        <label for="imagem_produto">Imagem do Produto:</label>
-        <input type="text" name="imagem_produto" value="<?php echo $imagem_produto; ?>" required width="200" />
-        <br/>
-        <label for="categoria">Categoria:</label>
-        <select name="categoria">
-            <?php echo "<option value=\"$categoria\" selected>$categoria</option>"; ?>
-            <option value="desktop">DESKTOP</option>
-            <option value="teclado">TECLADO</option>
-            <option value="mouse">MOUSE</option>
-            <option value="notebook">NOTEBOOK</option>
-        </select>    
-        <br/>
-        <label for="preco">Preço:</label>
-        <input type="number" name="preco" value="<?php echo $preco; ?>" step="any" required />
-        <br/>
-        <input type="hidden" name="id_produto" value="<?php echo $id_produto; ?>">
-        <input type="hidden" name="valida" value="1">
-        <input type="submit" name="botao" value="ALTERAR PRODUTO"/>
-        </form>
+      <br/>
 
-<?php
-    }
-    else {
-        //echo $_SERVER['HTTP_REFERER'];
-            //echo "VAMOS AGORA FAZER A VERDADEIRA ATUALIZAÇÃO";
-            $id_produto        = $_REQUEST['id_produto'];
-            $nome_produto      = $_REQUEST['nome'];
-            $descricao_produto = $_REQUEST['descricao'];
-            $imagem_produto = $_REQUEST['imagem_produto'];
-            $categoria         = $_REQUEST['categoria'];
-            $preco             = $_REQUEST['preco'];
-            //PASSO 1
-            $conexao = mysqli_connect("localhost","root", "", "informatica") or die ("A conexão não foi executada com sucesso");
-            //PASSO 2 - MONTAR A CONSULTA
-            echo $consulta = "UPDATE produto SET nome_produto = '$nome_produto', descricao_produto = '$descricao_produto', imagem_produto = '$imagem_produto', categoria = '$categoria', preco = $preco WHERE id_produto='$id_produto'";
-            //PASSO 3- EXECUTAR A CONSULTA
-            $resultado =  mysqli_query($conexao,$consulta);
-
-            echo "<h2>PRODUTO ALTERADO COM SUCESSO!</h2><br><a href=\"listar.php\">VOLTAR</a>";
-    }
-//fechamento do else
-}
-?>
-</body>
+      <input type="hidden" name="id" value="<?php echo $id; ?>">
+      <input type="submit" name="botao" value="Alterar"/>
+    </form>
+  </body>
 </html>

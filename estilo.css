@@ -20,6 +20,9 @@
 img {
   width: 100%;
 }
+.publicidade img {
+  width: 256px;
+}
 
 .container {
   margin: 0 auto;

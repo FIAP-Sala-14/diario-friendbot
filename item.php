@@ -31,10 +31,12 @@
           <?php
           include 'conecta_mysql.inc';
           
-          $strSQL =  "SELECT id, name ";
-          $strSQL .= "FROM post_categories ";
-          $strSQL .= "ORDER BY name ";
-          $strSQL .= "LIMIT 10";
+          $strSQL = array();
+          $strSQL[] =  "SELECT id, name ";
+          $strSQL[] = "FROM post_categories ";
+          $strSQL[] = "ORDER BY name ";
+          $strSQL[] = "LIMIT 10";
+          $strSQL = implode(' ', $strSQL);
           
           $categories =  mysqli_query($conexao, $strSQL);
 
@@ -53,20 +55,21 @@
           include 'conecta_mysql.inc';
           
           $strSQL = array();
-          $strSQL[] = "SELECT id, title, tags, CONCAT('<p>', REPLACE(content,'\\n','</p><p>'), '</p>') as content, photo, status, date_created, author, category";
-          $strSQL[] = "FROM posts";
-          $strSQL[] = "WHERE id = " . $_GET['post'];
-          
+          $strSQL[] = "SELECT posts.id, posts.title, posts.tags, CONCAT('<p>', REPLACE(posts.content,'\\n','</p><p>'), '</p>') as content, posts.photo, posts.status, posts.date_created, posts.author, posts.category as category_id, cat.name as category_name";
+          $strSQL[] = "FROM posts as posts";
+          $strSQL[] = "LEFT JOIN post_categories as cat";
+          $strSQL[] = "ON posts.category = cat.id";
+          $strSQL[] = "WHERE posts.id = " . $_GET['post'];
           $strSQL = implode(' ', $strSQL);
           
           $resultado =  mysqli_query($conexao, $strSQL);
-          list($id, $title, $tags, $content, $photo, $status, $date_created, $author, $category) = mysqli_fetch_array($resultado);
+          list($id, $title, $tags, $content, $photo, $status, $date_created, $author, $category_id, $category_name) = mysqli_fetch_array($resultado);
 
           echo
             "<div>
               <h1><a href='item.php?post=$id'>$title</a></h1>
               <a href='item.php?post=$id'><img src='./imagens/$photo'></a>
-              <p>Criado em $date_created por $author. Categoria: $category</p>
+              <p>Criado em $date_created por $author. Categoria: $category_name</p>
             </div>
             <p>$content</p>
             <p>Tags: $tags</p>";

@@ -31,10 +31,12 @@
           <?php
             include 'conecta_mysql.inc';
           
-            $strSQL =  "SELECT id, name ";
-            $strSQL .= "FROM post_categories ";
-            $strSQL .= "ORDER BY name ";
-            $strSQL .= "LIMIT 10";
+            $strSQL = array();
+            $strSQL[] =  "SELECT id, name";
+            $strSQL[] = "FROM post_categories";
+            $strSQL[] = "ORDER BY name";
+            $strSQL[] = "LIMIT 10";
+            $strSQL = implode(' ', $strSQL);
             
             $categories =  mysqli_query($conexao, $strSQL);
 
@@ -45,6 +47,9 @@
                 </li>";
             }
           ?>
+          <li class="nav-item">
+            <a class="nav-link text-white" href="admin/listar.php">(Admin)</a>
+          </li>
         </ul>
       </nav>
 
@@ -60,22 +65,23 @@
           include 'conecta_mysql.inc';
           
           $strSQL = array();
-          $strSQL[] = "SELECT id, title, tags, concat(left(content, 160), '...') as content, photo, status, date_created, author, category";
-          $strSQL[] = "FROM posts";
+          $strSQL[] = "SELECT posts.id, posts.title, posts.tags, concat(left(posts.content, 160), '...') as content, posts.photo, posts.status, posts.date_created, posts.author, posts.category as category_id, cat.name as category_name";
+          $strSQL[] = "FROM posts as posts";
+          $strSQL[] = "LEFT JOIN post_categories as cat";
+          $strSQL[] = "ON posts.category = cat.id";
           $strSQL[] = "ORDER BY date_created desc";
           $strSQL[] = "LIMIT 10";
-          
           $strSQL = implode(' ', $strSQL);
           
           $resultado =  mysqli_query($conexao, $strSQL);
 
-          while (list($id, $title, $tags, $content, $photo, $status, $date_created, $author, $category) = mysqli_fetch_array($resultado)) {
+          while (list($id, $title, $tags, $content, $photo, $status, $date_created, $author, $category_id, $category_name) = mysqli_fetch_array($resultado)) {
             echo
               "<div class='col-sm-6'>
                 <div>
                   <h1><a href='item.php?post=$id'>$title</a></h1>
                   <a href='item.php?post=$id'><img src='./imagens/$photo'></a>
-                  <p>Criado em $date_created por $author. Categoria: $category</p>
+                  <p>Criado em $date_created por $author. Categoria: $category_name</p>
                 </div>
                 <p>$content</p>
                 <p>Tags: $tags</p>
@@ -85,7 +91,8 @@
       </section>
 
       <aside class="publicidade">
-        <img src="./imagens/publicidade.jpg" alt="foto de um gatinho laranja">
+        <p>Anúncio</p>
+        <img src="../imagens/publicidade.jpg" alt="foto de um gatinho laranja">
       </aside>
 
     </div>
